@@ -44,6 +44,10 @@
         #language-switch span:hover {
             transform: scale(1.2);
         }
+        .selected {
+            font-weight: bold;
+            border-bottom: 2px solid currentColor;
+        }
     </style>
 </head>
 <body>
@@ -83,6 +87,20 @@
             }
         }
 
+        async function translateWord(word, targetLang) {
+            const response = await fetch('https://libretranslate.com/translate', {
+                method: 'POST',
+                body: JSON.stringify({
+                    q: word,
+                    source: language,
+                    target: targetLang
+                }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await response.json();
+            return data.translatedText;
+        }
+
         function updateTimer() {
             const timerElement = document.getElementById('timer');
             const wordElement = document.getElementById('word');
@@ -99,11 +117,12 @@
             }
         }
 
-        function showRandomWord() {
+        async function showRandomWord() {
             if (words.length > 0) {
                 const randomWord = words[Math.floor(Math.random() * words.length)];
+                const translatedWord = await translateWord(randomWord, 'en');
                 const wordElement = document.getElementById('word');
-                wordElement.textContent = randomWord;
+                wordElement.textContent = `${randomWord} (${translatedWord})`;
                 wordElement.style.display = 'inline';
             }
         }
@@ -111,6 +130,20 @@
         function switchLanguage(newLanguage) {
             language = newLanguage;
             fetchWords();
+            document.querySelectorAll('#language-switch span').forEach(span => {
+                span.classList.remove('selected');
+            });
+            document.querySelector(`[aria-label="${languageName(language)}"]`).classList.add('selected');
+        }
+
+        function languageName(lang) {
+            switch (lang) {
+                case 'en': return 'English';
+                case 'fr': return 'French';
+                case 'it': return 'Italian';
+                case 'sp': return 'Spanish';
+                case 'ger': return 'German';
+            }
         }
 
         document.getElementById('language-switch').addEventListener('click', (event) => {
