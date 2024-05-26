@@ -32,7 +32,7 @@
             margin: 10px 0;
         }
         #translation {
-            display: block;
+            display: none; /* Initially hide the translation */
             margin: 10px 0;
         }
         #language-switch {
@@ -50,10 +50,14 @@
             font-weight: bold;
             border-bottom: 2px solid currentColor;
         }
-        #meaning {
-            margin-top: 20px;
-            font-size: 18px;
-            color: var(--text-color);
+        #toggle-translation {
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        #toggle-translation:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -71,13 +75,14 @@
             <span role="img" aria-label="German">🇩🇪</span>
         </div>
         <div id="translation"></div>
-        <div id="meaning"></div>
+        <div id="toggle-translation">Show Translation</div>
     </div>
 
     <script>
         let timer = 0;
         let words = [];
         let language = 'en-US';
+        let translationVisible = false;
 
         const languageUrls = {
             'en-US': 'https://random-word-api.herokuapp.com/word?number=5000&lang=en',
@@ -102,15 +107,6 @@
             return data.responseData.translatedText;
         }
 
-        async function fetchMeaning(word) {
-            const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
-            const data = await response.json();
-            if (data && data.length > 0 && data[0].meanings && data[0].meanings.length > 0) {
-                return data[0].meanings[0].definitions[0].definition;
-            }
-            return "No definition found.";
-        }
-
         async function showRandomWord() {
             if (words.length > 0) {
                 const randomWord = words[Math.floor(Math.random() * words.length)];
@@ -118,14 +114,11 @@
                 if (language !== 'en-US') {
                     translatedWord = await translateWord(randomWord);
                 }
-                const wordMeaning = await fetchMeaning(randomWord);
                 const wordElement = document.getElementById('word');
                 const translationElement = document.getElementById('translation');
-                const meaningElement = document.getElementById('meaning');
                 
                 wordElement.textContent = randomWord;
                 translationElement.textContent = translatedWord ? `(${translatedWord})` : '';
-                meaningElement.textContent = `Meaning: ${wordMeaning}`;
             }
         }
 
@@ -185,6 +178,21 @@
             }
         });
 
+        function toggleTranslation() {
+            translationVisible = !translationVisible;
+            const translationElement = document.getElementById('translation');
+            const toggleButton = document.getElementById('toggle-translation');
+            if (translationVisible) {
+                translationElement.style.display = 'block';
+                toggleButton.textContent = 'Hide Translation';
+            } else {
+                translationElement.style.display = 'none';
+                toggleButton.textContent = 'Show Translation';
+            }
+        }
+
+        document.getElementById('toggle-translation').addEventListener('click', toggleTranslation);
+        
         function applyTheme() {
             const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
             if (prefersDarkScheme) {
