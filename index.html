@@ -126,25 +126,17 @@
                 wordElement.textContent = randomWord;
                 translationElement.textContent = translatedWord ? `(${translatedWord})` : '';
                 meaningElement.textContent = `Meaning: ${wordMeaning}`;
-
-                wordElement.style.display = 'block';
-                translationElement.style.display = translatedWord ? 'block' : 'none';
             }
         }
 
         function updateTimer() {
             const timerElement = document.getElementById('timer');
-            const wordElement = document.getElementById('word');
-            const translationElement = document.getElementById('translation');
-
             if (timer >= 7) {
                 timer = 0;
                 showRandomWord();
             } else {
                 timer++;
                 timerElement.textContent = timer;
-                wordElement.style.display = 'none';
-                translationElement.style.display = 'none';
             }
         }
 
