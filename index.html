@@ -77,14 +77,14 @@
     <script>
         let timer = 0;
         let words = [];
-        let language = 'en';
+        let language = 'en-US';
 
         const languageUrls = {
-            en: 'https://random-word-api.herokuapp.com/word?number=5000&lang=en',
-            fr: 'https://random-word-api.herokuapp.com/word?number=5000&lang=fr',
-            it: 'https://random-word-api.herokuapp.com/word?number=5000&lang=it',
-            sp: 'https://random-word-api.herokuapp.com/word?number=5000&lang=es',
-            ger: 'https://random-word-api.herokuapp.com/word?number=5000&lang=de'
+            'en-US': 'https://random-word-api.herokuapp.com/word?number=5000&lang=en',
+            'fr-FR': 'https://random-word-api.herokuapp.com/word?number=5000&lang=fr',
+            'it-IT': 'https://random-word-api.herokuapp.com/word?number=5000&lang=it',
+            'es-ES': 'https://random-word-api.herokuapp.com/word?number=5000&lang=es',
+            'de-DE': 'https://random-word-api.herokuapp.com/word?number=5000&lang=de'
         };
 
         async function fetchWords() {
@@ -97,7 +97,7 @@
         }
 
         async function translateWord(word) {
-            const response = await fetch(`https://api.mymemory.translated.net/get?q=${word}&langpair=${language}|en`);
+            const response = await fetch(`https://api.mymemory.translated.net/get?q=${word}&langpair=${language}|en-US`);
             const data = await response.json();
             return data.responseData.translatedText;
         }
@@ -109,6 +109,27 @@
                 return data[0].meanings[0].definitions[0].definition;
             }
             return "No definition found.";
+        }
+
+        async function showRandomWord() {
+            if (words.length > 0) {
+                const randomWord = words[Math.floor(Math.random() * words.length)];
+                let translatedWord = '';
+                if (language !== 'en-US') {
+                    translatedWord = await translateWord(randomWord);
+                }
+                const wordMeaning = await fetchMeaning(randomWord);
+                const wordElement = document.getElementById('word');
+                const translationElement = document.getElementById('translation');
+                const meaningElement = document.getElementById('meaning');
+                
+                wordElement.textContent = randomWord;
+                translationElement.textContent = translatedWord ? `(${translatedWord})` : '';
+                meaningElement.textContent = `Meaning: ${wordMeaning}`;
+
+                wordElement.style.display = 'block';
+                translationElement.style.display = translatedWord ? 'block' : 'none';
+            }
         }
 
         function updateTimer() {
@@ -127,30 +148,10 @@
             }
         }
 
-        async function showRandomWord() {
-            if (words.length > 0) {
-                const randomWord = words[Math.floor(Math.random() * words.length)];
-                let translatedWord = '';
-                if (language !== 'en') {
-                    translatedWord = await translateWord(randomWord);
-                }
-                const wordMeaning = await fetchMeaning(randomWord);
-                const wordElement = document.getElementById('word');
-                const translationElement = document.getElementById('translation');
-                const meaningElement = document.getElementById('meaning');
-                
-                wordElement.textContent = randomWord;
-                translationElement.textContent = translatedWord ? `(${translatedWord})` : '';
-                meaningElement.textContent = `Meaning: ${wordMeaning}`;
-
-                wordElement.style.display = 'block';
-                translationElement.style.display = translatedWord ? 'block' : 'none';
-            }
-        }
-
-        function switchLanguage(newLanguage) {
+        async function switchLanguage(newLanguage) {
             language = newLanguage;
-            fetchWords();
+            await fetchWords();
+            showRandomWord();
             document.querySelectorAll('#language-switch span').forEach(span => {
                 span.classList.remove('selected');
             });
@@ -159,32 +160,32 @@
 
         function languageName(lang) {
             switch (lang) {
-                case 'en': return 'English';
-                case 'fr': return 'French';
-                case 'it': return 'Italian';
-                case 'sp': return 'Spanish';
-                case 'ger': return 'German';
+                case 'en-US': return 'English';
+                case 'fr-FR': return 'French';
+                case 'it-IT': return 'Italian';
+                case 'es-ES': return 'Spanish';
+                case 'de-DE': return 'German';
             }
         }
 
-        document.getElementById('language-switch').addEventListener('click', (event) => {
+        document.getElementById('language-switch').addEventListener('click', async (event) => {
             if (event.target.tagName === 'SPAN') {
                 const selectedLanguage = event.target.getAttribute('aria-label');
                 switch (selectedLanguage) {
                     case 'English':
-                        switchLanguage('en');
+                        await switchLanguage('en-US');
                         break;
                     case 'French':
-                        switchLanguage('fr');
+                        await switchLanguage('fr-FR');
                         break;
                     case 'Italian':
-                        switchLanguage('it');
+                        await switchLanguage('it-IT');
                         break;
                     case 'Spanish':
-                        switchLanguage('sp');
+                        await switchLanguage('es-ES');
                         break;
                     case 'German':
-                        switchLanguage('ger');
+                        await switchLanguage('de-DE');
                         break;
                     default:
                         break;
@@ -207,6 +208,7 @@
         window.matchMedia("(prefers-color-scheme: dark)").addEventListener('change', applyTheme);
 
         fetchWords().then(() => {
+            showRandomWord();
             setInterval(updateTimer, 1000);
         });
     </script>
