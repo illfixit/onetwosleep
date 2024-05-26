@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>One Two Sleep</title>
+    <title>Timer with Random Words</title>
     <style>
         body {
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f0f0f0;
             font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
         }
         #container {
             text-align: center;
@@ -29,8 +31,11 @@
         }
         #word {
             display: none;
-            color: #333;
             margin-left: 10px;
+        }
+        #language-switch {
+            font-size: 24px;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -40,15 +45,27 @@
             <div id="timer">0</div>
             <div id="word"></div>
         </div>
+        <div id="language-switch">
+            🇬🇧 🇫🇷 🇮🇹 🇪🇸 🇩🇪
+        </div>
     </div>
 
     <script>
         let timer = 0;
         let words = [];
+        let language = 'en';
+
+        const languageUrls = {
+            en: 'https://random-word-api.herokuapp.com/word?number=5000&lang=en',
+            fr: 'https://random-word-api.herokuapp.com/word?number=5000&lang=fr',
+            it: 'https://random-word-api.herokuapp.com/word?number=5000&lang=it',
+            sp: 'https://random-word-api.herokuapp.com/word?number=5000&lang=es',
+            ger: 'https://random-word-api.herokuapp.com/word?number=5000&lang=de'
+        };
 
         async function fetchWords() {
             try {
-                let response = await fetch('https://random-word-api.herokuapp.com/word?number=5000');
+                let response = await fetch(languageUrls[language]);
                 words = await response.json();
             } catch (error) {
                 console.error('Error fetching words:', error);
@@ -79,6 +96,51 @@
                 wordElement.style.display = 'inline';
             }
         }
+
+        function switchLanguage(newLanguage) {
+            language = newLanguage;
+            fetchWords();
+        }
+
+        document.getElementById('language-switch').addEventListener('click', (event) => {
+            if (event.target.tagName === 'DIV') {
+                return;
+            }
+            const selectedLanguage = event.target.textContent;
+            switch (selectedLanguage) {
+                case '🇬🇧':
+                    switchLanguage('en');
+                    break;
+                case '🇫🇷':
+                    switchLanguage('fr');
+                    break;
+                case '🇮🇹':
+                    switchLanguage('it');
+                    break;
+                case '🇪🇸':
+                    switchLanguage('sp');
+                    break;
+                case '🇩🇪':
+                    switchLanguage('ger');
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        function applyTheme() {
+            const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            if (prefersDarkScheme) {
+                document.documentElement.style.setProperty('--bg-color', '#333');
+                document.documentElement.style.setProperty('--text-color', '#fff');
+            } else {
+                document.documentElement.style.setProperty('--bg-color', '#f0f0f0');
+                document.documentElement.style.setProperty('--text-color', '#000');
+            }
+        }
+
+        applyTheme();
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener('change', applyTheme);
 
         fetchWords().then(() => {
             setInterval(updateTimer, 1000);
