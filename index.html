@@ -57,7 +57,7 @@
             <div id="word"></div>
         </div>
         <div id="language-switch">
-            <span role="img" aria-label="English">🇬🇧</span>
+            <span role="img" aria-label="English" class="selected">🇬🇧</span>
             <span role="img" aria-label="French">🇫🇷</span>
             <span role="img" aria-label="Italian">🇮🇹</span>
             <span role="img" aria-label="Spanish">🇪🇸</span>
@@ -87,18 +87,10 @@
             }
         }
 
-        async function translateWord(word, targetLang) {
-            const response = await fetch('https://libretranslate.com/translate', {
-                method: 'POST',
-                body: JSON.stringify({
-                    q: word,
-                    source: language,
-                    target: targetLang
-                }),
-                headers: { 'Content-Type': 'application/json' }
-            });
+        async function translateWord(word) {
+            const response = await fetch(`https://api.mymemory.translated.net/get?q=${word}&langpair=${language}|en`);
             const data = await response.json();
-            return data.translatedText;
+            return data.responseData.translatedText;
         }
 
         function updateTimer() {
@@ -120,7 +112,7 @@
         async function showRandomWord() {
             if (words.length > 0) {
                 const randomWord = words[Math.floor(Math.random() * words.length)];
-                const translatedWord = await translateWord(randomWord, 'en');
+                const translatedWord = await translateWord(randomWord);
                 const wordElement = document.getElementById('word');
                 wordElement.textContent = `${randomWord} (${translatedWord})`;
                 wordElement.style.display = 'inline';
