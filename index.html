@@ -39,6 +39,8 @@
             position: fixed;
             font-size: 24px;
             bottom: 16px;
+            left: 0;
+            right: 0;
         }
         #language-switch span {
             cursor: pointer;
@@ -126,12 +128,15 @@
 
         function updateTimer() {
             const timerElement = document.getElementById('timer');
+
             if (timer >= 8) {
-                timer = 0;
-                showRandomWord();
-            } else {
-                timer++;
+                timer = 1;
                 timerElement.textContent = timer;
+            } else {
+                timer = timer + 1;
+                timerElement.textContent = timer;
+                if(timer == 8)
+                showRandomWord();
             }
         }
 
