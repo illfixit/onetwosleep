@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,26 +16,36 @@
             color: var(--text-color);
             transition: background-color 0.3s, color 0.3s;
         }
+
         #container {
             text-align: center;
             max-width: 80%;
         }
+
         #display {
             font-size: 36px;
             margin-bottom: 20px;
             min-width: 150px;
+            opacity: 1;
         }
+
         #timer {
             display: block;
         }
+
         #word {
             display: block;
             margin: 10px 0;
+            transition: opacity linear 0.8s;
         }
+
         #translation {
-            display: none; /* Initially hide the translation */
+            display: none;
+            /* Initially hide the translation */
             margin: 10px 0;
+            transition: opacity linear 0.8s;
         }
+
         #language-switch {
             position: fixed;
             font-size: 24px;
@@ -42,28 +53,38 @@
             left: 0;
             right: 0;
         }
+
         #language-switch span {
             cursor: pointer;
             margin: 0 5px;
         }
+
         #language-switch span:hover {
             transform: scale(1.2);
         }
+
         .selected {
             font-weight: bold;
             border-bottom: 2px solid currentColor;
         }
+
         #toggle-translation {
+            position: fixed;
+            bottom: 64px;
+            left: 0;
+            right: 0;
             font-size: 16px;
-            margin-top: 10px;
             cursor: pointer;
             display: inline-block;
+            opacity: 0.5;
         }
+
         #toggle-translation:hover {
             text-decoration: underline;
         }
     </style>
 </head>
+
 <body>
     <div id="container">
         <div id="display">
@@ -114,15 +135,27 @@
         async function showRandomWord() {
             if (words.length > 0) {
                 const randomWord = words[Math.floor(Math.random() * words.length)];
+                const wordElement = document.getElementById('word');
+                wordElement.textContent = randomWord;
+
                 let translatedWord = '';
                 if (language !== 'en-US') {
                     translatedWord = await translateWord(randomWord);
                 }
-                const wordElement = document.getElementById('word');
                 const translationElement = document.getElementById('translation');
-                
-                wordElement.textContent = randomWord;
+
                 translationElement.textContent = translatedWord ? `(${translatedWord})` : '';
+                // Reset the opacity to 1 for new word
+                document.getElementById('word').style.opacity = 1;
+                document.getElementById('translation').style.opacity = 1;
+
+                // Hide or show the translation toggle based on the language
+                const toggleTranslationElement = document.getElementById('toggle-translation');
+                if (language === 'en-US') {
+                    toggleTranslationElement.style.display = 'none';
+                } else {
+                    toggleTranslationElement.style.display = 'inline-block';
+                }
             }
         }
 
@@ -130,13 +163,15 @@
             const timerElement = document.getElementById('timer');
 
             if (timer >= 8) {
+                showRandomWord();
                 timer = 1;
                 timerElement.textContent = timer;
             } else {
                 timer = timer + 1;
+                document.getElementById('word').style.opacity = 1 - (timer / 8);
+                document.getElementById('translation').style.opacity = 1 - (timer / 8);
+
                 timerElement.textContent = timer;
-                if(timer == 8)
-                showRandomWord();
             }
         }
 
@@ -199,7 +234,7 @@
         }
 
         document.getElementById('toggle-translation').addEventListener('click', toggleTranslation);
-        
+
         function applyTheme() {
             const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
             if (prefersDarkScheme) {
@@ -220,4 +255,5 @@
         });
     </script>
 </body>
+
 </html>
