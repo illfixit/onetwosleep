@@ -36,8 +36,9 @@
             margin: 10px 0;
         }
         #language-switch {
+            position: fixed;
             font-size: 24px;
-            margin-top: 20px;
+            bottom: 16px;
         }
         #language-switch span {
             cursor: pointer;
@@ -67,6 +68,9 @@
             <div id="timer">0</div>
             <div id="word"></div>
         </div>
+        <div id="translation"></div>
+        <div id="toggle-translation">Show Translation</div>
+
         <div id="language-switch">
             <span role="img" aria-label="English" class="selected">🇬🇧</span>
             <span role="img" aria-label="French">🇫🇷</span>
@@ -74,8 +78,6 @@
             <span role="img" aria-label="Spanish">🇪🇸</span>
             <span role="img" aria-label="German">🇩🇪</span>
         </div>
-        <div id="translation"></div>
-        <div id="toggle-translation">Show Translation</div>
     </div>
 
     <script>
@@ -124,7 +126,7 @@
 
         function updateTimer() {
             const timerElement = document.getElementById('timer');
-            if (timer >= 7) {
+            if (timer >= 8) {
                 timer = 0;
                 showRandomWord();
             } else {
