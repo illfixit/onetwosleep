@@ -117,14 +117,14 @@
         function updateTimer() {
             const timerElement = document.getElementById('timer');
 
-            if (timer >= 8) {
-                showRandomWord();
+            if (timer > 7) {
                 timer = 1;
                 timerElement.textContent = timer;
             } else {
                 timer = timer + 1;
-                document.getElementById('word').style.opacity = 1 - (timer / 8);
+                document.getElementById('word').style.opacity = 0.98 - (timer / 8);
                 timerElement.textContent = timer;
+                if(timer == 8) showRandomWord();
             }
         }
 
